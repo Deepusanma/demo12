@@ -26,7 +26,7 @@ jobs:
         run: mvn -B package --file spring-simple-maven-master/pom.xml
 
       - name: Test
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+        run: mvn --batch-mode spring-simple-maven-master-Dmaven.test.failure.ignore=true test
 
       - name: Upload Maven artifacts
         uses: actions/upload-artifact@v2
