@@ -2,9 +2,9 @@ name: Java CI with Maven Build and S3 Deployment
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   Review-code-and-build:
@@ -23,11 +23,11 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: mvn -B package --file spring-simple-maven-master/pom.xml
+        run: mvn -B package --file pom.xml
 
-       name: Run Tests
-        id: run-tests
-        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test --file spring-simple-maven-master/
+      - name: Test
+        run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
+
       - name: Upload Maven artifacts
         uses: actions/upload-artifact@v2
         with:
@@ -48,8 +48,26 @@ jobs:
       - name: List contents of the directory
         run: ls -R 
 
-      - name: Upload artifact to S3
-        run: aws s3 cp ./target/mb2g-spring-boot-0.0.1-SNAPSHOT.jar s3://devtest-deployment/maven-artifacts.jar
+    #  - name: Upload artifact to S3
+      #  run: aws s3 cp ./target/mb2g-spring-boot-0.0.1-SNASHOT.jar s3://devtest-deployment/maven-artifacts.jar
 
-      - name: Upload CF Script to S3
-        run: aws s3 cp ./cicd/Instanceparam.json s3://cfdeployment/
+     # - name: Upload CF Script to S3
+       # run: aws s3 cp ./cicd/Instanceparam.json s3://cfdeployment/
+  Review-PR:
+     runs-on: ubuntu-latest
+     needs: Review-code-and-build
+     if: github.event_name == 'pull_request'
+     steps:
+      - name: Check if unit tests passed
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "Unit tests passed, approving PR."
+            # Approve PR
+            gh pr review --approve
+          else
+            echo "Unit tests failed, stopping PR."
+            # Stop PR
+            gh pr review --reject
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
