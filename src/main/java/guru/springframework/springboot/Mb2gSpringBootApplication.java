@@ -11,4 +11,3 @@ public class Mb2gSpringBootApplication {
 	}
 
 }
-
