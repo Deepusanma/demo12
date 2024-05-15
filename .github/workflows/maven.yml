@@ -2,9 +2,9 @@ name: Java CI with Maven Build and S3 Deployment
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   review-code-and-build:
@@ -14,7 +14,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-   
+
       - name: Set up JDK 11
         uses: actions/setup-java@v3
         with:
@@ -72,5 +72,6 @@ jobs:
           else
             echo "Unit tests failed, stopping PR."
             gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
+          fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
