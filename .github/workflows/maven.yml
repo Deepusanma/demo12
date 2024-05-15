@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  Review-code-and-build:
+  review-code-and-build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -33,11 +33,6 @@ jobs:
         with:
           name: maven-artifacts
           path: target
-          
-      - name: Download Maven artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: maven-artifacts
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -45,17 +40,19 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
-      - name: List contents of the directory
-        run: ls -R 
 
-    #  - name: Upload artifact to S3
-      #  run: aws s3 cp ./target/mb2g-spring-boot-0.0.1-SNASHOT.jar s3://devtest-deployment/maven-artifacts.jar
+      - name: List contents of the directory
+        run: ls -R target
+
+     # - name: Upload artifact to S3
+     #   run: aws s3 cp target/mb2g-spring-boot-0.0.1-SNAPSHOT.jar s3://devtest-deployment/maven-artifacts.jar
 
      # - name: Upload CF Script to S3
-       # run: aws s3 cp ./cicd/Instanceparam.json s3://cfdeployment/
+      #  run: aws s3 cp cicd/Instanceparam.json s3://cfdeployment/
+
   review-pr:
     runs-on: ubuntu-latest
-    needs: Review-code-and-build
+    needs: review-code-and-build
     if: github.event_name == 'pull_request'
     steps:
       - name: Checkout Repository
@@ -65,11 +62,11 @@ jobs:
         run: sudo apt-get install -y gh
 
       - name: Authenticate GitHub CLI
-        run: gh auth login --with-token <<< "${{ secrets.GH_TOKEN }}"
+        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
       - name: Check if unit tests passed
         run: |
-          if [ "${{ needs.Review-code-and-build.result }}" == "success" ]; then
+          if [ "${{ needs.review-code-and-build.result }}" == "success" ]; then
             echo "Unit tests passed, approving PR."
             gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
           else
