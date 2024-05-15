@@ -69,7 +69,7 @@ jobs:
 
       - name: Check if unit tests passed
         run: |
-          if [ "${{ needs.build.result }}" == "success" ]; then
+          if [ "${{ needs.Review-code-and-build.result }}" == "success" ]; then
             echo "Unit tests passed, approving PR."
             gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
           else
