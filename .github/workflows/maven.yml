@@ -22,17 +22,17 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      #- name: Build with Maven
+      #   #run: mvn -B package --file pom.xml
 
       - name: Test
         run: mvn --batch-mode -Dmaven.test.failure.ignore=true test
 
-      - name: Upload Maven artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: maven-artifacts
-          path: target
+      #- name: Upload Maven artifacts
+      #  uses: actions/upload-artifact@v2
+      #  with:
+      #    name: maven-artifacts
+       #   path: target
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -44,11 +44,11 @@ jobs:
       - name: List contents of the directory
         run: ls -R target
 
-      - name: Upload artifact to S3
-        run: aws s3 cp target/mb2g-spring-boot-0.0.1-SNAPSHOT.jar s3://devtest-deployment/maven-artifacts.jar
+     # - name: Upload artifact to S3
+      #  run: aws s3 cp target/mb2g-spring-boot-0.0.1-SNAPSHOT.jar s3://devtest-deployment/maven-artifacts.jar
 
-      - name: Upload CF Script to S3
-        run: aws s3 cp cicd/Instanceparam.json s3://cfdeployment/
+     # - name: Upload CF Script to S3
+     #   run: aws s3 cp cicd/Instanceparam.json s3://cfdeployment/
 
   review-pr:
     runs-on: ubuntu-latest
