@@ -2,7 +2,7 @@ name: PR Build, Test, and Approval
 
 on:
   pull_request:
-    branches: ["main", "release"]
+    branches: ["main"]
 
 jobs:
   review-pr:
@@ -29,9 +29,9 @@ jobs:
         id: test-result
         run: |
           if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
-            echo "test_result=success"
+            echo "success"
           else
-            echo "test_result=failure"
+            echo "failure"
             exit 0
           fi
 
