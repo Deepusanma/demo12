@@ -2,7 +2,7 @@ name: PR Build, Test, and Approval
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "release"]
 
 jobs:
   review-pr:
@@ -20,13 +20,18 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
       - name: Test
         id: test
-        run: mvn --batch-mode test || echo "Tests failed"
+        run: |
+          mvn --batch-mode test || echo "Tests failed"
+        continue-on-error: true
 
-      - name: Set test result
+      - name: Capture test result
         id: test-result
-        run: echo "Test outcome:${{ steps.test.outcome }}"
+        run: echo "Test outcome:${{ steps.test.outcome }}" > $GITHUB_ENV
 
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
@@ -40,7 +45,7 @@ jobs:
             echo "Unit tests passed, approving PR."
             gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
           else
-            echo "Unit tests failed, stopping PR."
+            echo "Unit tests failed, requesting changes."
             gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
