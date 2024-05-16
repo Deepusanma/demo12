@@ -2,7 +2,7 @@ name: PR Build, Test, and Approval
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "release"]
 
 jobs:
   review-pr:
@@ -23,14 +23,16 @@ jobs:
       - name: Test
         id: run-tests
         run: mvn --batch-mode -Dmaven.test.failure=true test
+        continue-on-error: true
 
       - name: Check test result
         id: test-result
         run: |
           if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
-            echo "test_result=success" 
+            echo "test_result=success"
           else
-            echo "test_result=failure" 
+            echo "test_result=failure"
+            exit 0
           fi
 
       - name: Install GitHub CLI
@@ -40,7 +42,7 @@ jobs:
         run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
 
       - name: Approve PR if tests passed
-        if: env.test_result == 'success'
+        if: steps.test-result.outputs.test_result == 'success'
         run: |
           echo "Unit tests passed, approving PR."
           gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
@@ -48,7 +50,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
       - name: Request changes if tests failed
-        if: env.test_result == 'failure'
+        if: steps.test-result.outputs.test_result == 'failure'
         run: |
           echo "Unit tests failed, requesting changes."
           gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
