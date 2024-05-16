@@ -20,19 +20,20 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
       - name: Test
         id: run-tests
-        run: mvn --batch-mode test
-        continue-on-error: true
+        run: mvn --batch-mode -Dmaven.test.failure=true test
 
       - name: Check test result
         id: test-result
         run: |
           if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
-            echo "Test result: success" >> $GH_TOKEN
+            echo "test_result=success" 
           else
-            echo "Test result: failure" >> $GH_TOKEN
-            exit 0
+            echo "test_result=failure" 
           fi
 
       - name: Install GitHub CLI
