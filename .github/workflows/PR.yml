@@ -2,7 +2,7 @@ name: PR Build, Test, and Approval
 
 on:
   pull_request:
-    branches: ["main"]
+    branches: ["main", "release"]
 
 jobs:
   review-pr:
@@ -20,39 +20,22 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
       - name: Test
         id: run-tests
         run: mvn --batch-mode -Dmaven.test.failure=true test
         continue-on-error: true
 
-      - name: Check test result
-        id: test-result
+      - name: Check test result and take action
         run: |
           if [ "${{ steps.run-tests.outcome }}" == "success" ]; then
-            echo "success"
+            echo "Unit tests passed, approving PR."
+            gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
           else
-            echo "failure"
-            exit 0
+            echo "Unit tests failed, requesting changes."
+            gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
           fi
-
-      - name: Install GitHub CLI
-        run: sudo apt-get install -y gh
-
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.GH_TOKEN }}" | gh auth login --with-token
-
-      - name: Approve PR if tests passed
-        if: steps.test-result.outputs.test_result == 'success'
-        run: |
-          echo "Unit tests passed, approving PR."
-          gh pr review ${{ github.event.pull_request.number }} --approve --body "All checks passed. Approving the PR."
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Request changes if tests failed
-        if: steps.test-result.outputs.test_result == 'failure'
-        run: |
-          echo "Unit tests failed, requesting changes."
-          gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
