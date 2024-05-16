@@ -12,6 +12,7 @@ public class Mb2gSpringBootApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
-
 }
+
+
 
