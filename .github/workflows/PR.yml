@@ -25,7 +25,7 @@ jobs:
 
       - name: Test
         id: test
-        run: mvn --batch-mode test
+        run: mvn --batch-mode -Dmaven.test.failure=true test
 
       - name: Install GitHub CLI
         run: sudo apt-get install -y gh
