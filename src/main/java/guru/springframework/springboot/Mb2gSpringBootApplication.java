@@ -8,5 +8,5 @@ public class Mb2gSpringBootApplication {
 	public static void main(String) {
 		SpringApplication.run(Mb2gSpringBootApplication.class, args);
 	}
- 
+  
 }
