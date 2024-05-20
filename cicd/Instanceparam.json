@@ -56,7 +56,6 @@
         "#!/bin/bash\n",
         "echo 'Welcome To AWS Cloudformation build and deployment!' > /tmp/Sample.txt\n",
         "mkdir -p /deploy\n",
-        "aws s3 cp s3://", { "Ref": "ArtifactBucket" }, "/", { "Ref": "ArtifactKey" }, " /deploy/\n"
       ]
     ]
   }
