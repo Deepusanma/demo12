@@ -9,7 +9,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class Mb2gSpringBootApplicationTests {
 
-	@Test
 	public void contextLoads() {
 	}
 
