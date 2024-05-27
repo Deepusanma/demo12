@@ -7,6 +7,7 @@ on:
 jobs:
   review-pr:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -43,6 +44,13 @@ jobs:
         if: always()
         with:
           status: ${{ job.status }}
-          # steps: ${{ toJson(steps) }}
+          author_name: "GitHub Actions"
+          text: |
+            *Repository:* ${{ github.repository }}
+            *Branch:* ${{ github.head_ref }}
+            *Event:* ${{ github.event_name }}
+            *Message:* Job ${{ job.status }}: ${{ steps.run-tests.outcome }}
+            *Actions URL:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Actions>
+          
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
