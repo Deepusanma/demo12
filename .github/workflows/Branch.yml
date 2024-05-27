@@ -1,0 +1,34 @@
+name: Validate Branch Name
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate-branch-name:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Validate branch name
+        run: |
+          branch_name="${{ github.head_ref }}"
+          echo "Branch name: $branch_name"
+
+          # Define allowed branch names
+          allowed_branches=("main" "default" "Int" "Release" "develop" "test")
+          
+          # Check if branch name is in allowed branches or follows the Jira story pattern
+          if [[ ! " ${allowed_branches[@]} " =~ " ${branch_name} " ]] && [[ ! "$branch_name" =~ ^CREDMGR-[0-9]+$ ]]; then
+            echo "Branch name '$branch_name' does not follow the required naming convention."
+            exit 1
+          fi
+
+      - name: Post a comment on failure
+        if: failure()
+        run: |
+          gh pr comment ${{ github.event.pull_request.number }} --body "Branch name '$branch_name' does not follow the required naming convention. Please rename your branch to follow the required pattern (e.g., CREDMGR-12345)."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
