@@ -37,3 +37,12 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2.1.0
+        if: always()
+        with:
+          status: ${{ job.status }}
+          steps: ${{ toJson(steps) }} 
+        env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
