@@ -1,0 +1,37 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "SNS Topic with Message Publishing and Email Subscription",
+  "Parameters": {
+    "CreateTopic": {
+      "Type": "String",
+      "AllowedValues": ["Yes", "No"],
+      "Description": "Create SNS Topic?"
+    },
+    "EmailAddress": {
+      "Type": "String",
+      "Description": "Email address to subscribe to the SNS topic"
+    }
+  },
+  "Conditions": {
+    "CreateTopicCondition": { "Fn::Equals": [{ "Ref": "CreateTopic" }, "Yes"] }
+  },
+  "Resources": {
+    "MySNSTopic": {
+      "Type": "AWS::SNS::Topic",
+      "Condition": "CreateTopicCondition",
+      "Properties": {
+        "DisplayName": "MySNS_Topic",
+        "TopicName": { "Fn::If": [ "CreateTopicCondition", "MySNS_Topic", "" ] }
+      }
+    },
+    "MySNSSubscription": {
+      "Type": "AWS::SNS::Subscription",
+      "Condition": "CreateTopicCondition",
+      "Properties": {
+        "Protocol": "email",
+        "TopicArn": { "Ref": "MySNSTopic" },
+        "Endpoint": { "Ref": "EmailAddress" }
+      }
+    }
+  }
+}
