@@ -17,7 +17,7 @@ jobs:
           branch_name="${{ github.head_ref }}"
           echo "Branch name: $branch_name"
 
-          # Define allowed branch names
+          # allowed branch names
           allowed_branches=("main" "default" "Int" "Release" "develop" "test")
           
           # Check if branch name is in allowed branches or follows the Jira story pattern
