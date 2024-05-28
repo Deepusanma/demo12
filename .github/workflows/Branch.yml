@@ -1,34 +1,35 @@
-name: Validate Branch Name
+name: Validate PR Title
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  validate-branch-name:
+  validate-pr-title:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Validate branch name
+      - name: Validate PR title
         run: |
-          branch_name="${{ github.head_ref }}"
-          echo "Branch name: $branch_name"
+          pr_title="${{ github.event.pull_request.title }}"
+          echo "PR title: $pr_title"
 
-          # allowed branch names
-          allowed_branches=("main" "default" "Int" "Release" "develop" "test")
-          
-          # Check if branch name is in allowed branches or follows the Jira story pattern
-          if [[ ! " ${allowed_branches[@]} " =~ " ${branch_name} " ]] && [[ ! "$branch_name" =~ ^CREDMGR-[0-9]+$ ]]; then
-            echo "Branch name '$branch_name' does not follow the required naming convention."
+          # pattern for  PR title
+          pattern="^CREDMGR-[0-9]+ .+$"
+
+          # Check if PR title matches the required pattern
+          if [[ ! "$pr_title" =~ $pattern ]]; then
+            echo "PR title '$pr_title' does not follow the required naming convention."
             exit 1
           fi
 
       - name: Post a comment on failure
         if: failure()
         run: |
-          gh pr comment ${{ github.event.pull_request.number }} --body "Branch name '$branch_name' does not follow the required naming convention. Please rename your branch to follow the required pattern (e.g., CREDMGR-12345)."
+          pr_title="${{ github.event.pull_request.title }}"
+          gh pr comment ${{ github.event.pull_request.number }} --body "PR title '$pr_title' does not follow the required naming convention. Please rename your PR title to follow the required pattern (e.g., 'CREDMGR-12345 changes in workflow')."
         env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
