@@ -38,19 +38,3 @@ jobs:
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Notify Slack
-        uses: rtCamp/action-slack-notify@v2.1.0
-        if: always()
-        with:
-          status: ${{ job.status }}
-          author_name: "GitHub Actions"
-          text: |
-            *Repository:* ${{ github.repository }}
-            *Branch:* ${{ github.head_ref }}
-            *Event:* ${{ github.event_name }}
-            *Message:* Job ${{ job.status }}: ${{ steps.run-tests.outcome }}
-            *Actions URL:* <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Actions>
-          
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
