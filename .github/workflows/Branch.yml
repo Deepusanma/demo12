@@ -32,5 +32,5 @@ jobs:
           pr_title="${{ github.event.pull_request.title }}"
           gh pr review ${{ github.event.pull_request.number }} --request-changes --body "PR title '$pr_title' does not follow the required naming convention. Please rename your PR title to follow the required pattern (e.g., 'CREDMGR-12345 changes in workflow')."
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
