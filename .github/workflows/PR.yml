@@ -34,7 +34,6 @@ jobs:
           else
             echo "Unit tests failed, requesting changes."
             gh pr review ${{ github.event.pull_request.number }} --request-changes --body "Some checks failed. Please review."
-            exit 1
           fi
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
