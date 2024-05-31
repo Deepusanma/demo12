@@ -23,6 +23,7 @@ jobs:
           # Check if PR title matches the required pattern
           if [[ ! "$pr_title" =~ $pattern ]]; then
             echo "PR title '$pr_title' does not follow the required naming convention !"
+            exit 1
           fi
 
       - name: Post a comment on failure
