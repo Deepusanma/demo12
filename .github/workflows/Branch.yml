@@ -15,14 +15,19 @@ jobs:
       - name: Validate PR title
         run: |
           pr_title="${{ github.event.pull_request.title }}"
+          target_branch="${{ github.event.pull_request.base.ref }}"
           echo "PR title: $pr_title"
+          echo "Target branch: $target_branch"
 
-          # pattern for  PR title
-          pattern="^CREDMGR-[0-9]+ .+$"
+          if [[ "$target_branch" == "main" ]]; then
+            pattern="^CM-[0-9]+ .+$"
+          else
+            pattern="^CREDMGR-[0-9]+ .+$"
+          fi
 
           # Check if PR title matches the required pattern
           if [[ ! "$pr_title" =~ $pattern ]]; then
-            echo "PR title '$pr_title' does not follow the required naming convention !"
+            echo "PR title '$pr_title' does not follow the required naming convention for the target branch '$target_branch'!"
             exit 1
           fi
 
@@ -30,7 +35,7 @@ jobs:
         if: failure()
         run: |
           pr_title="${{ github.event.pull_request.title }}"
-          gh pr review ${{ github.event.pull_request.number }} --request-changes --body "PR title '$pr_title' does not follow the required naming convention. Please rename your PR title to follow the required pattern (e.g., 'CREDMGR-12345 changes in workflow')."
+          target_branch="${{ github.event.pull_request.base.ref }}"
+          gh pr review ${{ github.event.pull_request.number }} --request-changes --body "PR title '$pr_title' does not follow the required naming convention for the target branch '$target_branch'. Please rename your PR title to follow the required pattern (e.g., 'CM-12345 changes in workflow' for main branch or 'CREDMGR-12345 changes in workflow' for other branches)."
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
