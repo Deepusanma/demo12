@@ -1,16 +1,26 @@
-name: Create Issue on Label 
+name: Create Issue on Label
+
 on:
   pull_request:
-    types: [opened , labeled]
+    types: [opened, labeled]
 
 jobs:
   create-issue:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check for label
-        if: contains(github.event.pull_request.labels.*.name, 'bug')
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for 'bug' label and create issue
         run: |
-          echo "Label 'bug' detected"
-          gh issue create --title "Bug report from PR #${{ github.event.pull_request.number }}" --body "This issue was automatically created because the 'bug' label was added to PR #${{ github.event.pull_request.number }}. Please investigate and resolve the issue." --label "bug"
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          LABELS=$(gh pr view $PR_NUMBER --json labels --jq '.labels | map(.name)')
+          if [[ $LABELS == *'"bug"'* ]]; then
+            echo "Label 'bug' detected"
+            gh issue create --title "Bug report from PR #${PR_NUMBER}" --body "This issue was automatically created because the 'bug' label was added to PR #${PR_NUMBER}. Please investigate and resolve the issue." --label "bug"
+          else
+            echo "Label 'bug' not detected"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
