@@ -1,8 +1,8 @@
-name: Validate PR Title
+name: Validate PR Title and Create Issue on Label
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, labeled]
 
 jobs:
   validate-pr-title:
@@ -42,9 +42,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
   create-issue:
-      runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-      steps:
+    steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
