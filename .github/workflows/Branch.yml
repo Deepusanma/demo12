@@ -39,15 +39,24 @@ jobs:
           gh pr review ${{ github.event.pull_request.number }} --request-changes --body "PR title '$pr_title' does not follow the required naming convention for the target branch '$target_branch'. Please rename your PR title to follow the required pattern (e.g., 'CM-12345 changes in workflow' for main branch or 'CREDMGR-12345 changes in workflow' for other branches)."
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
- 
 
   create-issue:
     runs-on: ubuntu-latest
+
     steps:
-       - name: Check for 'bug' label and create issue
-         if: contains(github.event.pull_request.labels.*.name, 'bug')
-         run: |
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Debug Event
+        run: |
+          echo "Event name: ${{ github.event_name }}"
+          echo "Action: ${{ github.event.action }}"
+          echo "Labels: ${{ toJson(github.event.pull_request.labels) }}"
+      
+      - name: Check for 'bug' label and create issue
+        if: contains(github.event.pull_request.labels.*.name, 'bug')
+        run: |
           echo "Label 'bug' detected"
           gh issue create --title "Bug report from PR #${{ github.event.pull_request.number }}" --body "This issue was automatically created because the 'bug' label was added to PR #${{ github.event.pull_request.number }}. Please investigate and resolve the issue." --label "bug"
-         env:
+        env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
