@@ -16,8 +16,11 @@ jobs:
         run: |
           echo "Event name: ${{ github.event_name }}"
           echo "Action: ${{ github.event.action }}"
-          echo "Labels: ${{ toJson(github.event.pull_request.labels) }}"
+          echo "Labels: ${{ toJson(github.event.pull_request.labels) | toJSON }}"
           echo "PR number: ${{ github.event.pull_request.number }}"
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh -y
 
       - name: Check for 'bug' label and create issue
         if: contains(github.event.pull_request.labels.*.name, 'bug')
