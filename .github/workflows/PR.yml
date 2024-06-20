@@ -2,7 +2,7 @@ name: PR Build, Test, and Approval
 
 on:
   pull_request:
-    branches: ["main", "release", "develop"]  
+    branches: ["main"]  
 
 jobs:
   review-pr:
