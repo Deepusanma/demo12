@@ -1,11 +1,41 @@
-name: Versioning Workflow
+name: Generate Next Version Tag
 
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main
 
 jobs:
+  generate-version-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Read current version and generate new build number
+        id: versioning
+        run: |
+          MAJOR=$(cat VERSION | tr -d '\n')
+          NOW=$(TZ=UTC date +%y.%m)
+          PREFIX=v$MAJOR.$NOW
+          echo "Finding latest build for $PREFIX" >&2
+          LATEST=$(git tag -l "$PREFIX*" | sort -r | head -1)
+          if [[ $LATEST ]]; then
+              echo "Found $LATEST" >&2
+              PARTS=( ${LATEST//./ } )
+              NEXT_BUILD=$((10#${PARTS[3]}+ 1))
+              NEW_BUILD_NUM="$(printf %04d $NEXT_BUILD)"
+          else
+              echo "No build found. Starting a new series." >&2
+              NEW_BUILD_NUM="0001"
+          fi
+          echo "NEW_VERSION=$PREFIX.$NEW_BUILD_NUM" >> $GITHUB_ENV
+
+      - name: Print new version
+        run: echo "New version is ${{ env.NEW_VERSION }}"
+
+
   generate-version:
     runs-on: ubuntu-latest
     
